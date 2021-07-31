@@ -9,11 +9,9 @@ import {
   message,
   Popconfirm,
   Space,
-  Row,
-  Col,
   Statistic,
 } from "antd";
-import { TableOutlined } from "@ant-design/icons";
+import { TableOutlined, MenuOutlined } from "@ant-design/icons";
 
 import styles from "./index.module.css";
 import InputModal from "../../components/InputModal";
@@ -50,6 +48,8 @@ export interface RecordItem {
   priceBack: number;
   priceBill: number;
 }
+
+const isMobile = document.body.clientWidth < 960;
 
 function Home() {
   const history = useHistory();
@@ -217,11 +217,17 @@ function Home() {
     });
   };
 
+  const [collapse, setCollapse] = useState(isMobile);
+
   return (
     <div>
       {/* 导航栏 */}
       <PageHeader
         ghost={false}
+        backIcon={<MenuOutlined />}
+        onBack={() => {
+          setCollapse(!collapse);
+        }}
         title="记账中心"
         extra={[
           <Button key="1" type="primary" onClick={handleExit}>
@@ -231,18 +237,16 @@ function Home() {
       />
       {/* 中部区域 */}
       <div className={styles.mainContainer}>
-        <div style={{ backgroundColor: "#fff" }}>
+        <div
+          className={styles.menu}
+          style={{ maxWidth: collapse ? "0" : "200px" }}
+        >
           <div style={{ textAlign: "center", padding: 10 }}>
             <Button type="primary" onClick={handleAddAccount}>
               新建账本
             </Button>
           </div>
-          <Menu
-            mode="inline"
-            inlineCollapsed={false}
-            style={{ width: 200 }}
-            onClick={handleChangeAccount}
-          >
+          <Menu mode="inline" onClick={handleChangeAccount}>
             {accountList &&
               accountList.map((accountItem) => {
                 return (
@@ -253,8 +257,11 @@ function Home() {
               })}
           </Menu>
         </div>
-        <div className={styles.mainBox}>
-          {aid && (
+        <div
+          className={styles.mainBox}
+          style={{ maxWidth: collapse ? "100%" : "calc(100% - 200px)" }}
+        >
+          {aid ? (
             <div>
               <PageHeader
                 title={getTitle()}
@@ -274,8 +281,8 @@ function Home() {
                   </Popconfirm>,
                 ]}
               />
-              <Row style={{ padding: "10px 30px", backgroundColor: "#fefefe" }}>
-                <Col span={8}>
+              <div className={styles.dataBox}>
+                <div className={styles.dataItem}>
                   <Statistic
                     title="金额总计 (元)"
                     value={recordList?.reduce(
@@ -284,8 +291,8 @@ function Home() {
                     )}
                     precision={2}
                   />
-                </Col>
-                <Col span={8}>
+                </div>
+                <div className={styles.dataItem}>
                   <Statistic
                     title="汇款总计 (元)"
                     value={recordList?.reduce(
@@ -294,8 +301,8 @@ function Home() {
                     )}
                     precision={2}
                   />
-                </Col>
-                <Col span={8}>
+                </div>
+                <div className={styles.dataItem}>
                   <Statistic
                     title="税票总计 (元)"
                     value={recordList?.reduce(
@@ -304,16 +311,19 @@ function Home() {
                     )}
                     precision={2}
                   />
-                </Col>
-              </Row>
+                </div>
+              </div>
               <Table
-                style={{ margin: 30, minWidth: 960 }}
+                style={{ margin: 10 }}
                 rowKey="id"
                 columns={columns}
                 dataSource={recordList}
                 loading={loadingRecordList}
+                scroll={{ x: 1300 }}
               />
             </div>
+          ) : (
+            <div className={styles.message}>打开左侧菜单选择一个账本</div>
           )}
         </div>
       </div>

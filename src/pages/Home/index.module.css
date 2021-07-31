@@ -1,8 +1,51 @@
 .mainContainer {
   display: flex;
+  width: 100%;
   flex-direction: row;
+  transition: all 0.3s ease-in-out;
 }
 
 .mainBox {
-  flex: 1 0;
+  flex-shrink: 0;
+  width: 100%;
+  overflow: hidden;
+  transition: all 0.3s ease-in-out;
+}
+
+.menu {
+  z-index: 999;
+  background-color: #fff;
+  flex-shrink: 0;
+  width: 200px;
+  overflow: hidden;
+  transition: all 0.3s ease-in-out;
+  height: calc(100vh - 72px);
+  overflow-y: scroll;
+}
+
+.dataBox {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 675px) {
+  .dataBox {
+    justify-content: center;
+  }
+}
+
+.dataItem {
+  margin: 10px;
+  padding: 20px;
+  background-color: #fff;
+  width: 280px;
+  flex-shrink: 0;
+}
+
+.message {
+  text-align: center;
+  font-size: 18px;
+  margin-top: 50px;
+  color: #999;
 }

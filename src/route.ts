@@ -11,6 +11,10 @@ const routeList: RouteProps[] = [
   {
     path: '/home',
     component: Home,
+  },
+  {
+    path: '*',
+    component: Login,
   }
 ];
 

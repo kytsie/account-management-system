@@ -45,11 +45,11 @@ function RecordModal({ show, onOk, onCancel, initValue }: IProps) {
     >
       <Form form={form} labelCol={{ span: 5 }} onValuesChange={handleCalc}>
         <Form.Item name="id" style={{ display: "none" }}>
-          <Input />
+          <Input style={{ width: 280 }} />
         </Form.Item>
 
         <Form.Item name="aid" style={{ display: "none" }}>
-          <Input />
+          <Input style={{ width: 280 }} />
         </Form.Item>
 
         <Form.Item
@@ -65,7 +65,7 @@ function RecordModal({ show, onOk, onCancel, initValue }: IProps) {
           name="title"
           rules={[{ required: true, message: "这里不能为空" }]}
         >
-          <Input />
+          <Input style={{ width: 280 }} />
         </Form.Item>
 
         <Form.Item
@@ -73,7 +73,7 @@ function RecordModal({ show, onOk, onCancel, initValue }: IProps) {
           name="user"
           rules={[{ required: true, message: "这里不能为空" }]}
         >
-          <Input />
+          <Input style={{ width: 280 }} />
         </Form.Item>
 
         <Form.Item
@@ -82,7 +82,7 @@ function RecordModal({ show, onOk, onCancel, initValue }: IProps) {
           rules={[{ required: true, message: "这里不能为空" }]}
           initialValue={0}
         >
-          <InputNumber />
+          <InputNumber style={{ width: 280 }} />
         </Form.Item>
 
         <Form.Item
@@ -91,7 +91,7 @@ function RecordModal({ show, onOk, onCancel, initValue }: IProps) {
           rules={[{ required: true, message: "这里不能为空" }]}
           initialValue={0}
         >
-          <InputNumber />
+          <InputNumber style={{ width: 280 }} />
         </Form.Item>
 
         <Form.Item
@@ -100,7 +100,7 @@ function RecordModal({ show, onOk, onCancel, initValue }: IProps) {
           rules={[{ required: true, message: "这里不能为空" }]}
           initialValue={0}
         >
-          <InputNumber />
+          <InputNumber style={{ width: 280 }} />
         </Form.Item>
 
         <Form.Item label="金额(元)">
@@ -110,7 +110,7 @@ function RecordModal({ show, onOk, onCancel, initValue }: IProps) {
             initialValue={0}
             noStyle
           >
-            <InputNumber disabled={auto} />
+            <InputNumber disabled={auto} style={{ width: 180 }} />
           </Form.Item>
           <span style={{ marginLeft: 20 }}>
             <Checkbox
@@ -130,7 +130,7 @@ function RecordModal({ show, onOk, onCancel, initValue }: IProps) {
           rules={[{ required: true, message: "这里不能为空" }]}
           initialValue={0}
         >
-          <InputNumber />
+          <InputNumber style={{ width: 280 }} />
         </Form.Item>
 
         <Form.Item
@@ -139,7 +139,7 @@ function RecordModal({ show, onOk, onCancel, initValue }: IProps) {
           required
           initialValue={0}
         >
-          <InputNumber />
+          <InputNumber style={{ width: 280 }} />
         </Form.Item>
       </Form>
     </Modal>
