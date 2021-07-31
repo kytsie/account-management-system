@@ -1,0 +1,8 @@
+.mainContainer {
+  display: flex;
+  flex-direction: row;
+}
+
+.mainBox {
+  flex: 1 0;
+}

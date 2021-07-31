@@ -1,0 +1,9 @@
+.loginBox {
+  width: 400px;
+  max-width: 100%;
+  position: absolute;
+  top: 50vh;
+  left: 50vw;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+}

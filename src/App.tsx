@@ -1,25 +1,16 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { HashRouter, Route, Switch } from "react-router-dom";
+import routeList from "./route";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <HashRouter>
+      <Switch>
+        {routeList.map((route) => (
+          <Route {...route} key={route.path?.toString()} />
+        ))}
+      </Switch>
+    </HashRouter>
   );
 }
 
