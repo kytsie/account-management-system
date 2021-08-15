@@ -5,7 +5,8 @@ import { AccountItem, RecordItem } from "./pages/Home";
 import qs from 'qs';
 
 const urlMap = {
-  development: 'http://localhost:8080',
+  // development: 'http://localhost:8080',
+  development: 'https://jz.kytsie.cn/api',
   test: 'http://localhost:8080',
   production: 'https://jz.kytsie.cn/api',
 }

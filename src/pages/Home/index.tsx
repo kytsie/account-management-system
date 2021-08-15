@@ -74,8 +74,18 @@ function Home() {
   });
 
   const columns: ColumnProps<RecordItem>[] = [
-    { dataIndex: "id", title: "序号" },
-    { dataIndex: "date", title: "日期", render: (value) => value.slice(0, 10) },
+    {
+      title: "序号",
+      render(_, record, index) {
+        return index + 1;
+      },
+    },
+    {
+      dataIndex: "date",
+      title: "日期",
+      render: (value) => value.slice(0, 10),
+      sorter: (a, b) => (a <= b ? -1 : 1),
+    },
     { dataIndex: "title", title: "型号" },
     { dataIndex: "user", title: "客户" },
     { dataIndex: "unit", title: "规格（kg/桶）" },
@@ -172,6 +182,7 @@ function Home() {
     if (aid) {
       const newModalInfo = {
         ...modalInfo,
+        initValue: undefined,
         show: true,
         onOk: (data: RecordItem) => {
           data.aid = aid;
@@ -239,7 +250,11 @@ function Home() {
       <div className={styles.mainContainer}>
         <div
           className={styles.menu}
-          style={{ maxWidth: collapse ? "0" : "200px" }}
+          style={{
+            maxWidth: collapse ? "0" : "200px",
+            position: "sticky",
+            top: 20,
+          }}
         >
           <div style={{ textAlign: "center", padding: 10 }}>
             <Button type="primary" onClick={handleAddAccount}>
@@ -294,7 +309,7 @@ function Home() {
                 </div>
                 <div className={styles.dataItem}>
                   <Statistic
-                    title="汇款总计 (元)"
+                    title="回款总计 (元)"
                     value={recordList?.reduce(
                       (p, record) => p + Number(record.priceBack),
                       0
@@ -319,6 +334,7 @@ function Home() {
                 columns={columns}
                 dataSource={recordList}
                 loading={loadingRecordList}
+                pagination={false}
                 scroll={{ x: 1300 }}
               />
             </div>

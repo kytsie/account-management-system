@@ -17,6 +17,8 @@ function RecordModal({ show, onOk, onCancel, initValue }: IProps) {
       const cloneData = JSON.parse(JSON.stringify(initValue));
       cloneData.date = moment(cloneData.date);
       form.setFieldsValue(cloneData);
+    } else {
+      form.resetFields();
     }
   }, [initValue, form]);
 
@@ -136,7 +138,7 @@ function RecordModal({ show, onOk, onCancel, initValue }: IProps) {
         <Form.Item
           label="税票开票(元)"
           name="priceBill"
-          required
+          rules={[{ required: true, message: "这里不能为空" }]}
           initialValue={0}
         >
           <InputNumber style={{ width: 280 }} />
