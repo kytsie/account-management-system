@@ -4,15 +4,17 @@ import { isLogin } from "../../utils";
 import {
   Button,
   PageHeader,
-  Menu,
   Table,
   message,
   Popconfirm,
   Space,
   Statistic,
+  Form,
+  Input,
 } from "antd";
-import { TableOutlined, MenuOutlined } from "@ant-design/icons";
-
+import ProLayout, { PageContainer } from "@ant-design/pro-layout";
+import { TableOutlined } from "@ant-design/icons";
+import "@ant-design/pro-layout/dist/layout.css";
 import styles from "./index.module.css";
 import InputModal from "../../components/InputModal";
 import {
@@ -56,6 +58,8 @@ function Home() {
   if (!isLogin()) {
     history.push("/login");
   }
+
+  const [keyword, setKeyword] = useState("");
 
   const { data: accountList, run: fetchAccountList } = useRequest(
     getAccountList,
@@ -168,7 +172,7 @@ function Home() {
 
   const [modalInfo, SetModalInfo] = useState({
     show: false,
-    onOk: (value: RecordItem) => {},
+    onOk: (value: RecordItem) => { },
     onCancel: () => {
       SetModalInfo({
         ...modalInfo,
@@ -232,50 +236,43 @@ function Home() {
 
   return (
     <div>
-      {/* 导航栏 */}
-      <PageHeader
-        ghost={false}
-        backIcon={<MenuOutlined />}
-        onBack={() => {
+      <ProLayout
+        layout="mix"
+        navTheme="light"
+        headerTheme="light"
+        collapsed={collapse}
+        onCollapse={() => {
           setCollapse(!collapse);
         }}
+        menuProps={{
+          onClick: handleChangeAccount,
+        }}
+        fixSiderbar
         title="记账中心"
-        extra={[
-          <Button key="1" type="primary" onClick={handleExit}>
-            退出
-          </Button>,
-        ]}
-      />
-      {/* 中部区域 */}
-      <div className={styles.mainContainer}>
-        <div
-          className={styles.menu}
-          style={{
-            maxWidth: collapse ? "0" : "200px",
-            position: "sticky",
-            top: 20,
-          }}
-        >
+        rightContentRender={() => (
+          <div>
+            <Button key="1" type="primary" onClick={handleExit}>
+              退出
+            </Button>
+          </div>
+        )}
+        menuDataRender={() =>
+          accountList?.map((account) => ({
+            key: account.id.toString(),
+            path: account.id.toString(),
+            name: account.title,
+            icon: <TableOutlined />,
+          })) || []
+        }
+        menuExtraRender={() => (
           <div style={{ textAlign: "center", padding: 10 }}>
             <Button type="primary" onClick={handleAddAccount}>
               新建账本
             </Button>
           </div>
-          <Menu mode="inline" onClick={handleChangeAccount}>
-            {accountList &&
-              accountList.map((accountItem) => {
-                return (
-                  <Menu.Item key={accountItem.id} icon={<TableOutlined />}>
-                    {accountItem.title}
-                  </Menu.Item>
-                );
-              })}
-          </Menu>
-        </div>
-        <div
-          className={styles.mainBox}
-          style={{ maxWidth: collapse ? "100%" : "calc(100% - 200px)" }}
-        >
+        )}
+      >
+        <PageContainer header={{ style: { display: "none" } }}>
           {aid ? (
             <div>
               <PageHeader
@@ -328,21 +325,37 @@ function Home() {
                   />
                 </div>
               </div>
+              <Form style={{ margin: 10 }}>
+                <Form.Item label="快速检索" name="keyword">
+                  <Input
+                    style={{ width: 300 }}
+                    allowClear
+                    onChange={(e) => {
+                      setKeyword((e.target as any).value);
+                    }}
+                  />
+                </Form.Item>
+              </Form>
               <Table
                 style={{ margin: 10 }}
                 rowKey="id"
+                bordered
                 columns={columns}
-                dataSource={recordList}
+                dataSource={recordList?.filter(
+                  (record) =>
+                    keyword === "" || JSON.stringify(record).includes(keyword)
+                )}
                 loading={loadingRecordList}
                 pagination={false}
-                scroll={{ x: 1300 }}
+                scroll={{ x: 1300, y: 600 }}
               />
             </div>
           ) : (
             <div className={styles.message}>打开左侧菜单选择一个账本</div>
           )}
-        </div>
-      </div>
+        </PageContainer>
+      </ProLayout>
+
       {/* 其他组件 */}
       <RecordModal {...modalInfo} />
     </div>
