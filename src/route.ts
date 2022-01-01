@@ -4,7 +4,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 
 const routeList: RouteProps[] = [
-  { 
+  {
     path: '/login',
     component: Login,
   },

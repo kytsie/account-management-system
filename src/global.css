@@ -1,3 +1,16 @@
 body {
   background-color: #eee;
 }
+
+.ant-table-row > .ant-table-cell {
+  border: 1px solid #eee;
+  transition: all 0.3s ease-in;
+}
+
+.ant-table-row:hover > .ant-table-cell {
+  border: 1px solid #000;
+}
+
+.ant-pro-page-container-children-content {
+  margin: 10px;
+}

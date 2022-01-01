@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
-import { isLogin } from "../../utils";
+import { isLogin, json2excel } from "../../utils";
 import {
   Button,
   PageHeader,
@@ -11,9 +11,10 @@ import {
   Statistic,
   Form,
   Input,
+  Tooltip,
 } from "antd";
 import ProLayout, { PageContainer } from "@ant-design/pro-layout";
-import { TableOutlined } from "@ant-design/icons";
+import { TableOutlined, DeleteOutlined, EditOutlined, PlusOutlined, LogoutOutlined, CloudDownloadOutlined } from "@ant-design/icons";
 import "@ant-design/pro-layout/dist/layout.css";
 import styles from "./index.module.css";
 import InputModal from "../../components/InputModal";
@@ -30,7 +31,7 @@ import {
 import { useRequest } from "ahooks";
 import { ColumnProps } from "antd/lib/table";
 import RecordModal from "../../components/RecordModal";
-import { Moment } from "moment";
+import moment, { Moment } from "moment";
 
 export interface AccountItem {
   id: string | number;
@@ -74,15 +75,20 @@ function Home() {
     loading: loadingRecordList,
   } = useRequest(getRecordList, {
     manual: true,
-    formatResult: (res) => res.data,
+    formatResult: (res) => {
+      const result = res.data.map((item, index) => ({
+        ...item,
+        tempId: index + 1
+      }));
+      result.sort((a, b) => b.tempId - a.tempId);
+      return result;
+    },
   });
 
   const columns: ColumnProps<RecordItem>[] = [
     {
       title: "序号",
-      render(_, record, index) {
-        return index + 1;
-      },
+      dataIndex: "tempId"
     },
     {
       dataIndex: "date",
@@ -103,23 +109,26 @@ function Home() {
       render(value, record) {
         return (
           <Space>
-            <Button
-              type="link"
-              onClick={() => {
-                handleUpdateRecord(record);
-              }}
-            >
-              修改
-            </Button>
+            <Tooltip placement="top" title="修改">
+              <Button
+                type="link"
+                onClick={() => {
+                  handleUpdateRecord(record);
+                }}
+                icon={<EditOutlined />}
+              />
+            </Tooltip>
+
             <Popconfirm
               title="是否删除这条记账信息？"
               onConfirm={() => {
                 handleDeleteRecord(record.id);
               }}
             >
-              <Button type="link" danger>
-                删除
-              </Button>
+              <Tooltip placement="top" title="删除">
+                <Button type="link" danger icon={<DeleteOutlined />} />
+              </Tooltip>
+
             </Popconfirm>
           </Space>
         );
@@ -131,6 +140,7 @@ function Home() {
   const handleChangeAccount = ({ key }: { key: string }) => {
     fetchRecordList(key);
     SetAid(key);
+    if (isMobile) setCollapse(!collapse);
   };
 
   const handleAddAccount = () => {
@@ -232,6 +242,59 @@ function Home() {
     });
   };
 
+  const handleExportExcel = () => {
+    if (recordList) {
+      const result = [...recordList];
+      result.sort((a, b) => a.tempId - b.tempId);
+      const excelData: any = result.map(item => ({
+        tempId: item.tempId,
+        date: item.date.toString().slice(0, 10),
+        title: item.title,
+        user: item.user,
+        unit: item.unit,
+        count: item.count,
+        priceUnit: item.priceUnit,
+        priceCalc: item.priceCalc,
+        priceBack: item.priceBack,
+        priceBill: item.priceBill,
+      }));
+      excelData.unshift({
+        tempId: '序号',
+        date: '日期',
+        title: '型号',
+        user: '客户',
+        unit: '规格（kg/桶）',
+        count: '数量（桶）',
+        priceUnit: '单价（元/kg）',
+        priceCalc: '金额（元）',
+        priceBack: '回款（元）',
+        priceBill: '税票开票（元）',
+      });
+      excelData.push({
+        tempId: '合计',
+        date: '',
+        title: '',
+        user: '',
+        unit: '',
+        count: '',
+        priceUnit: '',
+        priceCalc: recordList?.reduce(
+          (p, record) => p + Number(record.priceCalc),
+          0
+        ),
+        priceBack: recordList?.reduce(
+          (p, record) => p + Number(record.priceBack),
+          0
+        ),
+        priceBill: recordList?.reduce(
+          (p, record) => p + Number(record.priceBill),
+          0
+        ),
+      });
+      json2excel(excelData, `${getTitle()}账本导出（${moment().format('YYYY-MM-DD')}）.xlsx`);
+    }
+  }
+
   const [collapse, setCollapse] = useState(isMobile);
 
   return (
@@ -246,12 +309,13 @@ function Home() {
         }}
         menuProps={{
           onClick: handleChangeAccount,
+          selectedKeys: [aid || '0'],
         }}
         fixSiderbar
         title="记账中心"
         rightContentRender={() => (
           <div>
-            <Button key="1" type="primary" onClick={handleExit}>
+            <Button key="1" type="primary" onClick={handleExit} icon={<LogoutOutlined />}>
               退出
             </Button>
           </div>
@@ -264,7 +328,7 @@ function Home() {
             icon: <TableOutlined />,
           })) || []
         }
-        menuExtraRender={() => (
+        menuExtraRender={() => !collapse && (
           <div style={{ textAlign: "center", padding: 10 }}>
             <Button type="primary" onClick={handleAddAccount}>
               新建账本
@@ -278,19 +342,28 @@ function Home() {
               <PageHeader
                 title={getTitle()}
                 extra={[
-                  <Button key="0" type="primary" onClick={handleCreateRecord}>
-                    记账
-                  </Button>,
-                  <Button key="1" type="default" onClick={handleEditAccount}>
-                    修改账本名称
-                  </Button>,
+                  <Tooltip key="0" placement="top" title="记账">
+                    <Button type="primary" onClick={handleCreateRecord} icon={<PlusOutlined />} />
+                  </Tooltip>
+                  ,
+                  <Tooltip key="1" placement="top" title="导出数据到Excel表格文件">
+                    <Button type="default" style={{ backgroundColor: '#237804', color: '#fff' }} onClick={handleExportExcel} icon={<CloudDownloadOutlined />} />
+                  </Tooltip>
+                  ,
+                  <Tooltip key="2" placement="top" title="修改账本名称">
+                    <Button type="default" onClick={handleEditAccount} icon={<EditOutlined />} />
+                  </Tooltip>
+                  ,
                   <Popconfirm
-                    key="2"
+                    key="3"
                     title="是否确认删除该账本？"
                     onConfirm={handleDeleteAccount}
                   >
-                    <Button danger>删除账本</Button>
-                  </Popconfirm>,
+                    <Tooltip placement="top" title="删除账本">
+                      <Button danger icon={<DeleteOutlined />} />
+                    </Tooltip>
+                  </Popconfirm>
+
                 ]}
               />
               <div className={styles.dataBox}>
@@ -346,8 +419,8 @@ function Home() {
                     keyword === "" || JSON.stringify(record).includes(keyword)
                 )}
                 loading={loadingRecordList}
-                pagination={false}
-                scroll={{ x: 1300, y: 600 }}
+                scroll={{ x: 1300 }}
+                size="small"
               />
             </div>
           ) : (
