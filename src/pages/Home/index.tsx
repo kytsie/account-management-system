@@ -347,7 +347,7 @@ function Home() {
                 )}
                 loading={loadingRecordList}
                 pagination={false}
-                scroll={{ x: 1300, y: 600 }}
+                scroll={{ x: 1300, y: 400 }}
               />
             </div>
           ) : (
