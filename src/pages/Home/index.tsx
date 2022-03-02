@@ -418,6 +418,17 @@ function Home() {
                 </div>
                 <div className={styles.dataItem}>
                   <Statistic
+                    title="金额 - 回款 = （元）"
+                    value={recordList?.reduce(
+                      (p, record) =>
+                        p + Number(record.priceCalc) - Number(record.priceBack),
+                      0
+                    )}
+                    precision={2}
+                  />
+                </div>
+                <div className={styles.dataItem}>
+                  <Statistic
                     title="税票总计 (元)"
                     value={recordList?.reduce(
                       (p, record) => p + Number(record.priceBill),
