@@ -183,7 +183,7 @@ function Home() {
   };
 
   const getTitle = () => {
-    return accountList?.find((item) => item.id === aid)?.title;
+    return accountList?.find((item) => item.id === Number(aid))?.title;
   };
 
   const [modalInfo, SetModalInfo] = useState({
@@ -206,14 +206,16 @@ function Home() {
         show: true,
         onOk: (data: RecordItem) => {
           data.aid = aid;
-          createRecord(data).then(() => {
-            message.success("创建成功");
-            aid && fetchRecordList(aid);
-            SetModalInfo({
-              ...modalInfo,
-              show: false,
-            });
-          });
+          createRecord({ ...data, date: (data.date as Moment).format() }).then(
+            () => {
+              message.success("创建成功");
+              aid && fetchRecordList(aid);
+              SetModalInfo({
+                ...modalInfo,
+                show: false,
+              });
+            }
+          );
         },
       };
       SetModalInfo(newModalInfo);
@@ -226,14 +228,16 @@ function Home() {
         ...modalInfo,
         show: true,
         onOk: (data: RecordItem) => {
-          updateRecord(data).then(() => {
-            message.success("创建成功");
-            fetchRecordList(aid);
-            SetModalInfo({
-              ...modalInfo,
-              show: false,
-            });
-          });
+          updateRecord({ ...data, date: (data.date as Moment).format() }).then(
+            () => {
+              message.success("创建成功");
+              fetchRecordList(aid);
+              SetModalInfo({
+                ...modalInfo,
+                show: false,
+              });
+            }
+          );
         },
         initValue: record,
       };
