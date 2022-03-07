@@ -105,12 +105,72 @@ function Home() {
     },
     { dataIndex: "title", title: "型号" },
     { dataIndex: "user", title: "客户" },
-    { dataIndex: "unit", title: "规格（kg/桶）" },
-    { dataIndex: "count", title: "数量（桶）" },
-    { dataIndex: "priceUnit", title: "单价（元/kg）" },
-    { dataIndex: "priceCalc", title: "金额（元）" },
-    { dataIndex: "priceBack", title: "回款（元）" },
-    { dataIndex: "priceBill", title: "税票开票合计（元）" },
+    {
+      dataIndex: "unit",
+      align: "right",
+      title: (
+        <div>
+          规格
+          <br />
+          <small>kg/桶</small>
+        </div>
+      ),
+    },
+    {
+      dataIndex: "count",
+      align: "right",
+      title: (
+        <div>
+          数量
+          <br />
+          <small>桶</small>
+        </div>
+      ),
+    },
+    {
+      dataIndex: "priceUnit",
+      align: "right",
+      title: (
+        <div>
+          单价
+          <br />
+          <small>元/kg</small>
+        </div>
+      ),
+    },
+    {
+      dataIndex: "priceCalc",
+      align: "right",
+      title: (
+        <div>
+          金额
+          <br />
+          <small>元</small>
+        </div>
+      ),
+    },
+    {
+      dataIndex: "priceBack",
+      align: "right",
+      title: (
+        <div>
+          回款
+          <br />
+          <small>元</small>
+        </div>
+      ),
+    },
+    {
+      dataIndex: "priceBill",
+      align: "right",
+      title: (
+        <div>
+          开票
+          <br />
+          <small>元</small>
+        </div>
+      ),
+    },
     {
       title: "操作",
       render(value, record) {
@@ -463,7 +523,7 @@ function Home() {
                     keyword === "" || JSON.stringify(record).includes(keyword)
                 )}
                 loading={loadingRecordList}
-                scroll={{ x: 1300 }}
+                scroll={{ x: 900 }}
                 size="small"
               />
             </div>
