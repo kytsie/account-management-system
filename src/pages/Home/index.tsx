@@ -12,6 +12,7 @@ import {
   Form,
   Input,
   Tooltip,
+  Spin,
 } from "antd";
 import ProLayout, { PageContainer } from "@ant-design/pro-layout";
 import {
@@ -39,6 +40,7 @@ import { useRequest } from "ahooks";
 import { ColumnProps } from "antd/lib/table";
 import RecordModal from "../../components/RecordModal";
 import moment, { Moment } from "moment";
+import DateRangeModel from "../../components/DateRangeModal";
 
 export interface AccountItem {
   id: string | number;
@@ -313,58 +315,71 @@ function Home() {
   };
 
   const handleExportExcel = () => {
-    if (recordList) {
+    if (recordList && recordList.length > 0) {
       const result = [...recordList];
       result.sort((a, b) => a.tempId - b.tempId);
-      const excelData: any = result.map((item) => ({
-        tempId: item.tempId,
-        date: item.date.toString().slice(0, 10),
-        title: item.title,
-        user: item.user,
-        unit: item.unit,
-        count: item.count,
-        priceUnit: item.priceUnit,
-        priceCalc: item.priceCalc,
-        priceBack: item.priceBack,
-        priceBill: item.priceBill,
-      }));
-      excelData.unshift({
-        tempId: "序号",
-        date: "日期",
-        title: "型号",
-        user: "客户",
-        unit: "规格（kg/桶）",
-        count: "数量（桶）",
-        priceUnit: "单价（元/kg）",
-        priceCalc: "金额（元）",
-        priceBack: "回款（元）",
-        priceBill: "税票开票（元）",
+      DateRangeModel.ask(
+        "请选择导出日期范围",
+        result[0].date,
+        result[result.length - 1].date
+      ).then((res) => {
+        const excelData: any = result
+          .filter((item) => {
+            const date = moment(item.date);
+            return date.isBetween(res.from, res.to);
+          })
+          .map((item) => ({
+            tempId: item.tempId,
+            date: item.date.toString().slice(0, 10),
+            title: item.title,
+            user: item.user,
+            unit: item.unit,
+            count: item.count,
+            priceUnit: item.priceUnit,
+            priceCalc: item.priceCalc,
+            priceBack: item.priceBack,
+            priceBill: item.priceBill,
+          }));
+        excelData.unshift({
+          tempId: "序号",
+          date: "日期",
+          title: "型号",
+          user: "客户",
+          unit: "规格（kg/桶）",
+          count: "数量（桶）",
+          priceUnit: "单价（元/kg）",
+          priceCalc: "金额（元）",
+          priceBack: "回款（元）",
+          priceBill: "税票开票（元）",
+        });
+        excelData.push({
+          tempId: "合计",
+          date: "",
+          title: "",
+          user: "",
+          unit: "",
+          count: "",
+          priceUnit: "",
+          priceCalc: recordList?.reduce(
+            (p, record) => p + Number(record.priceCalc),
+            0
+          ),
+          priceBack: recordList?.reduce(
+            (p, record) => p + Number(record.priceBack),
+            0
+          ),
+          priceBill: recordList?.reduce(
+            (p, record) => p + Number(record.priceBill),
+            0
+          ),
+        });
+        json2excel(
+          excelData,
+          `${getTitle()}账本导出（${res.from.format(
+            "YYYY-MM-DD"
+          )}到${res.to.format("YYYY-MM-DD")}）.xlsx`
+        );
       });
-      excelData.push({
-        tempId: "合计",
-        date: "",
-        title: "",
-        user: "",
-        unit: "",
-        count: "",
-        priceUnit: "",
-        priceCalc: recordList?.reduce(
-          (p, record) => p + Number(record.priceCalc),
-          0
-        ),
-        priceBack: recordList?.reduce(
-          (p, record) => p + Number(record.priceBack),
-          0
-        ),
-        priceBill: recordList?.reduce(
-          (p, record) => p + Number(record.priceBill),
-          0
-        ),
-      });
-      json2excel(
-        excelData,
-        `${getTitle()}账本导出（${moment().format("YYYY-MM-DD")}）.xlsx`
-      );
     }
   };
 
@@ -418,115 +433,119 @@ function Home() {
       >
         <PageContainer header={{ style: { display: "none" } }}>
           {aid ? (
-            <div>
-              <PageHeader
-                title={getTitle()}
-                extra={[
-                  <Tooltip key="0" placement="top" title="记账">
-                    <Button
-                      type="primary"
-                      onClick={handleCreateRecord}
-                      icon={<PlusOutlined />}
+            <Spin spinning={loadingRecordList} tip="加载中...">
+              <div>
+                <PageHeader
+                  title={getTitle()}
+                  extra={[
+                    <Tooltip key="0" placement="top" title="记账">
+                      <Button
+                        type="primary"
+                        onClick={handleCreateRecord}
+                        icon={<PlusOutlined />}
+                      />
+                    </Tooltip>,
+                    <Tooltip
+                      key="1"
+                      placement="top"
+                      title="导出数据到Excel表格文件"
+                    >
+                      <Button
+                        type="default"
+                        style={{ backgroundColor: "#237804", color: "#fff" }}
+                        onClick={handleExportExcel}
+                        icon={<CloudDownloadOutlined />}
+                      />
+                    </Tooltip>,
+                    <Tooltip key="2" placement="top" title="修改账本名称">
+                      <Button
+                        type="default"
+                        onClick={handleEditAccount}
+                        icon={<EditOutlined />}
+                      />
+                    </Tooltip>,
+                    <Popconfirm
+                      key="3"
+                      title="是否确认删除该账本？"
+                      onConfirm={handleDeleteAccount}
+                    >
+                      <Tooltip placement="top" title="删除账本">
+                        <Button danger icon={<DeleteOutlined />} />
+                      </Tooltip>
+                    </Popconfirm>,
+                  ]}
+                />
+                <div className={styles.dataBox}>
+                  <div className={styles.dataItem}>
+                    <Statistic
+                      title="金额总计 (元)"
+                      value={recordList?.reduce(
+                        (p, record) => p + Number(record.priceCalc),
+                        0
+                      )}
+                      precision={2}
                     />
-                  </Tooltip>,
-                  <Tooltip
-                    key="1"
-                    placement="top"
-                    title="导出数据到Excel表格文件"
-                  >
-                    <Button
-                      type="default"
-                      style={{ backgroundColor: "#237804", color: "#fff" }}
-                      onClick={handleExportExcel}
-                      icon={<CloudDownloadOutlined />}
+                  </div>
+                  <div className={styles.dataItem}>
+                    <Statistic
+                      title="回款总计 (元)"
+                      value={recordList?.reduce(
+                        (p, record) => p + Number(record.priceBack),
+                        0
+                      )}
+                      precision={2}
                     />
-                  </Tooltip>,
-                  <Tooltip key="2" placement="top" title="修改账本名称">
-                    <Button
-                      type="default"
-                      onClick={handleEditAccount}
-                      icon={<EditOutlined />}
+                  </div>
+                  <div className={styles.dataItem}>
+                    <Statistic
+                      title="金额 - 回款 = （元）"
+                      value={recordList?.reduce(
+                        (p, record) =>
+                          p +
+                          Number(record.priceCalc) -
+                          Number(record.priceBack),
+                        0
+                      )}
+                      precision={2}
                     />
-                  </Tooltip>,
-                  <Popconfirm
-                    key="3"
-                    title="是否确认删除该账本？"
-                    onConfirm={handleDeleteAccount}
-                  >
-                    <Tooltip placement="top" title="删除账本">
-                      <Button danger icon={<DeleteOutlined />} />
-                    </Tooltip>
-                  </Popconfirm>,
-                ]}
-              />
-              <div className={styles.dataBox}>
-                <div className={styles.dataItem}>
-                  <Statistic
-                    title="金额总计 (元)"
-                    value={recordList?.reduce(
-                      (p, record) => p + Number(record.priceCalc),
-                      0
-                    )}
-                    precision={2}
-                  />
+                  </div>
+                  <div className={styles.dataItem}>
+                    <Statistic
+                      title="税票总计 (元)"
+                      value={recordList?.reduce(
+                        (p, record) => p + Number(record.priceBill),
+                        0
+                      )}
+                      precision={2}
+                    />
+                  </div>
                 </div>
-                <div className={styles.dataItem}>
-                  <Statistic
-                    title="回款总计 (元)"
-                    value={recordList?.reduce(
-                      (p, record) => p + Number(record.priceBack),
-                      0
-                    )}
-                    precision={2}
-                  />
-                </div>
-                <div className={styles.dataItem}>
-                  <Statistic
-                    title="金额 - 回款 = （元）"
-                    value={recordList?.reduce(
-                      (p, record) =>
-                        p + Number(record.priceCalc) - Number(record.priceBack),
-                      0
-                    )}
-                    precision={2}
-                  />
-                </div>
-                <div className={styles.dataItem}>
-                  <Statistic
-                    title="税票总计 (元)"
-                    value={recordList?.reduce(
-                      (p, record) => p + Number(record.priceBill),
-                      0
-                    )}
-                    precision={2}
-                  />
-                </div>
+                <Form style={{ margin: 10 }}>
+                  <Form.Item label="快速检索" name="keyword">
+                    <Input
+                      style={{ width: 300 }}
+                      allowClear
+                      onChange={(e) => {
+                        setKeyword((e.target as any).value);
+                      }}
+                    />
+                  </Form.Item>
+                </Form>
+                <Table
+                  style={{ margin: 10 }}
+                  rowKey="id"
+                  bordered
+                  columns={columns}
+                  dataSource={recordList?.filter(
+                    (record) =>
+                      keyword === "" || JSON.stringify(record).includes(keyword)
+                  )}
+                  loading={loadingRecordList}
+                  scroll={{ x: 900 }}
+                  size="small"
+                />
               </div>
-              <Form style={{ margin: 10 }}>
-                <Form.Item label="快速检索" name="keyword">
-                  <Input
-                    style={{ width: 300 }}
-                    allowClear
-                    onChange={(e) => {
-                      setKeyword((e.target as any).value);
-                    }}
-                  />
-                </Form.Item>
-              </Form>
-              <Table
-                style={{ margin: 10 }}
-                rowKey="id"
-                bordered
-                columns={columns}
-                dataSource={recordList?.filter(
-                  (record) =>
-                    keyword === "" || JSON.stringify(record).includes(keyword)
-                )}
-                loading={loadingRecordList}
-                scroll={{ x: 900 }}
-                size="small"
-              />
-            </div>
+            </Spin>
           ) : (
             <div className={styles.message}>打开左侧菜单选择一个账本</div>
           )}
