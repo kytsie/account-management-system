@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Input, InputNumber, Form, DatePicker, Checkbox } from "antd";
+import { Modal, Input, InputNumber, Form, DatePicker as DatePickerComponent, Checkbox } from "antd";
 import { RecordItem } from "../../pages/Home";
 import moment from "moment";
 
@@ -9,6 +9,8 @@ interface IProps {
   onCancel: any;
   initValue?: RecordItem;
 }
+
+const DatePicker: any = DatePickerComponent;
 
 function RecordModal({ show, onOk, onCancel, initValue }: IProps) {
   const [form] = Form.useForm<RecordItem>();
@@ -39,7 +41,7 @@ function RecordModal({ show, onOk, onCancel, initValue }: IProps) {
       <Form form={form} style={{ display: 'none' }}></Form>
       <Modal
         title="记账"
-        visible={show}
+        open={show}
         onOk={() => {
           form.validateFields().then((value) => {
             onOk(value);

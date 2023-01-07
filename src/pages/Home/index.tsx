@@ -41,6 +41,7 @@ import { ColumnProps } from "antd/lib/table";
 import RecordModal from "../../components/RecordModal";
 import moment, { Moment } from "moment";
 import DateRangeModel from "../../components/DateRangeModal";
+import logo from "../../assets/lgoo.png";
 
 export interface AccountItem {
   id: string | number;
@@ -221,7 +222,6 @@ function Home() {
   };
 
   const handleExit = () => {
-    localStorage.clear();
     history.push("/login");
   };
 
@@ -245,7 +245,28 @@ function Home() {
   };
 
   const getTitle = () => {
-    return accountList?.find((item) => item.id === Number(aid))?.title;
+    const title = accountList?.find((item) => item.id === Number(aid))?.title;
+    return (
+      <>
+        <span style={{marginRight: '10px'}}>{title}</span>
+        <Tooltip key="1" placement="top" title="修改账本名称">
+          <Button
+            type="text"
+            onClick={handleEditAccount}
+            icon={<EditOutlined />}
+          />
+        </Tooltip>
+        <Popconfirm
+          key="2"
+          title="是否确认删除该账本？"
+          onConfirm={handleDeleteAccount}
+        >
+          <Tooltip placement="top" title="删除账本">
+            <Button type="text" danger icon={<DeleteOutlined />} />
+          </Tooltip>
+        </Popconfirm>
+      </>
+    )
   };
 
   const [modalInfo, SetModalInfo] = useState({
@@ -388,8 +409,8 @@ function Home() {
     <div>
       <ProLayout
         layout="mix"
-        navTheme="light"
-        headerTheme="light"
+        navTheme="dark"
+        headerTheme="dark"
         collapsed={collapse}
         onCollapse={() => {
           setCollapse(!collapse);
@@ -399,17 +420,22 @@ function Home() {
           selectedKeys: [aid || "0"],
         }}
         fixSiderbar
+        logo={<img src={logo}/>}
         title="记账中心"
         rightContentRender={() => (
           <div>
-            <Button
+            <Popconfirm
               key="1"
-              type="primary"
-              onClick={handleExit}
-              icon={<LogoutOutlined />}
+              title="是否确认退出？"
+              onConfirm={handleExit}
             >
-              退出
-            </Button>
+              <Button
+                type="primary"
+                icon={<LogoutOutlined />}
+              >
+                退出
+              </Button>
+            </Popconfirm>
           </div>
         )}
         menuDataRender={() =>
@@ -417,7 +443,7 @@ function Home() {
             key: account.id.toString(),
             path: account.id.toString(),
             name: account.title,
-            icon: <TableOutlined />,
+            icon: <Button type="default" shape="circle" size="small" style={{marginRight: '10px'}}>{account.title[0]}</Button>,
           })) || []
         }
         menuExtraRender={() =>
@@ -442,7 +468,7 @@ function Home() {
                         type="primary"
                         onClick={handleCreateRecord}
                         icon={<PlusOutlined />}
-                      />
+                      >记账</Button>
                     </Tooltip>,
                     <Tooltip
                       key="1"
@@ -450,28 +476,10 @@ function Home() {
                       title="导出数据到Excel表格文件"
                     >
                       <Button
-                        type="default"
-                        style={{ backgroundColor: "#237804", color: "#fff" }}
                         onClick={handleExportExcel}
                         icon={<CloudDownloadOutlined />}
                       />
-                    </Tooltip>,
-                    <Tooltip key="2" placement="top" title="修改账本名称">
-                      <Button
-                        type="default"
-                        onClick={handleEditAccount}
-                        icon={<EditOutlined />}
-                      />
-                    </Tooltip>,
-                    <Popconfirm
-                      key="3"
-                      title="是否确认删除该账本？"
-                      onConfirm={handleDeleteAccount}
-                    >
-                      <Tooltip placement="top" title="删除账本">
-                        <Button danger icon={<DeleteOutlined />} />
-                      </Tooltip>
-                    </Popconfirm>,
+                    </Tooltip>
                   ]}
                 />
                 <div className={styles.dataBox}>

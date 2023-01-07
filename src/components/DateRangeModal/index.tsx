@@ -2,7 +2,7 @@ import { Modal, DatePicker, ConfigProvider } from "antd";
 import zh from "antd/lib/locale/zh_CN";
 import moment, { Moment } from "moment";
 
-const { RangePicker } = DatePicker;
+const { RangePicker }: any = DatePicker;
 
 function DateRangeModel() {}
 
