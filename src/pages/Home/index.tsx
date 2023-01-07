@@ -393,9 +393,10 @@ function Home() {
             0
           ),
         });
+        const title = accountList?.find((item) => item.id === Number(aid))?.title;
         json2excel(
           excelData,
-          `${getTitle()}账本导出（${res.from.format(
+          `${title}账本导出（${res.from.format(
             "YYYY-MM-DD"
           )}到${res.to.format("YYYY-MM-DD")}）.xlsx`
         );
