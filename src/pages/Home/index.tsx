@@ -204,10 +204,10 @@ function Home() {
     },
   ];
 
-  const [aid, SetAid] = useState<string>();
+  const [aid, setAid] = useState<string>();
   const handleChangeAccount = ({ key }: { key: string }) => {
     fetchRecordList(key);
-    SetAid(key);
+    setAid(key);
     if (isMobile) setCollapse(!collapse);
   };
 
@@ -229,7 +229,7 @@ function Home() {
     aid &&
       deleteAccount(aid).then(() => {
         message.success("删除成功");
-        SetAid(undefined);
+        setAid(undefined);
         fetchAccountList();
       });
   };
@@ -323,23 +323,22 @@ function Home() {
         result[0].date,
         result[result.length - 1].date
       ).then((res) => {
-        const excelData: any = result
-          .filter((item) => {
-            const date = moment(item.date);
-            return date.isBetween(res.from, res.to);
-          })
-          .map((item) => ({
-            tempId: item.tempId,
-            date: item.date.toString().slice(0, 10),
-            title: item.title,
-            user: item.user,
-            unit: item.unit,
-            count: item.count,
-            priceUnit: item.priceUnit,
-            priceCalc: item.priceCalc,
-            priceBack: item.priceBack,
-            priceBill: item.priceBill,
-          }));
+        const recordListFilter = result.filter((item) => {
+          const date = moment(item.date);
+          return date.isBetween(res.from, res.to);
+        });
+        const excelData: any = recordListFilter.map((item) => ({
+          tempId: item.tempId,
+          date: item.date.toString().slice(0, 10),
+          title: item.title,
+          user: item.user,
+          unit: item.unit,
+          count: item.count,
+          priceUnit: item.priceUnit,
+          priceCalc: item.priceCalc,
+          priceBack: item.priceBack,
+          priceBill: item.priceBill,
+        }));
         excelData.unshift({
           tempId: "序号",
           date: "日期",
@@ -360,15 +359,15 @@ function Home() {
           unit: "",
           count: "",
           priceUnit: "",
-          priceCalc: recordList?.reduce(
+          priceCalc: recordListFilter?.reduce(
             (p, record) => p + Number(record.priceCalc),
             0
           ),
-          priceBack: recordList?.reduce(
+          priceBack: recordListFilter?.reduce(
             (p, record) => p + Number(record.priceBack),
             0
           ),
-          priceBill: recordList?.reduce(
+          priceBill: recordListFilter?.reduce(
             (p, record) => p + Number(record.priceBill),
             0
           ),

@@ -6,9 +6,9 @@ import qs from "qs";
 
 const urlMap = {
   // development: 'http://localhost:8080',
-  development: "https://jz.kytsie.cn/v2/public/index.php",
-  test: "https://jz.kytsie.cn/v2/public/index.php",
-  production: "https://jz.kytsie.cn/v2/public/index.php",
+  development: "https://www.kytsie.cn/jz/v2/public/index.php",
+  test: "https://www.kytsie.cn/jz/v2/public/index.php",
+  production: "./v2/public/index.php",
 };
 
 const showError = (message: string) => {
