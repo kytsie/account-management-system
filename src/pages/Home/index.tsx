@@ -16,7 +16,6 @@ import {
 } from "antd";
 import ProLayout, { PageContainer } from "@ant-design/pro-layout";
 import {
-  TableOutlined,
   DeleteOutlined,
   EditOutlined,
   PlusOutlined,
@@ -346,7 +345,7 @@ function Home() {
       ).then((res) => {
         const recordListFilter = result.filter((item) => {
           const date = moment(item.date);
-          return date.isBetween(res.from, res.to);
+          return date.isBetween(res.from, res.to, null, '[]');
         });
         const excelData: any = recordListFilter.map((item) => ({
           tempId: item.tempId,
